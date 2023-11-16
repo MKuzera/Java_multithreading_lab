@@ -1,4 +1,4 @@
-package zad1;
+package lab1;
 
 import  java.util.Random;
 
@@ -11,8 +11,16 @@ class Obraz {
     private char[] tab_symb;
     private int[] histogram;
 	private int sym_num;
-    
-    public Obraz(int n, int m,int sym_num) {
+
+	public int getSize_n() {// rows
+		return size_n;
+	}
+
+	public int getSize_m() { //cols
+		return size_m;
+	}
+
+	public Obraz(int n, int m, int sym_num) {
 	
 	this.size_n = n;
 	this.size_m = m;
@@ -103,4 +111,50 @@ class Obraz {
 	}
     }
 
+	public void calculate_histogram_blokowo(int id, int threadsNum) {
+
+		int block = sym_num/threadsNum; // czy tu odrazu robi metode ceil()?
+		int startPoint = id*block;
+		int endPoint = (id+1)*block;
+		if(endPoint > sym_num) {endPoint=sym_num;}
+
+		for (int i = 0; i < size_n; i++) {
+			for (int j = 0; j < size_m; j++) {
+				for(int k =startPoint; k<endPoint;k++)
+				if (tab[i][j] == tab_symb[k]) histogram[k]++;
+			}
+		}
+	}
+
+
+	public void calculate_histogram_for_row(int i) {
+
+			for (int j = 0; j < size_m; j++) {
+				for (int k = 0; k < sym_num; k++) {
+				//	System.out.println("J:" + j + "i"+i);
+					if (tab[i][j] == tab_symb[k]) histogram[k]++;
+				}
+			}
+	}
+
+	public void calculate_histogram_for_col(int i) {
+		for (int j = 0; j < size_n; j++) {
+			for (int k = 0; k < sym_num; k++) {
+				if (tab[j][i] == tab_symb[k]) histogram[k]++;
+			}
+		}
+	}
+
+//	public void calculate_histogram_2d(int id, int threadsNum) {
+//		int block_rows = size_n/threadsNum;
+//		int startRow = id*block_rows;
+//		int endRow = (id+1)*block_rows;
+//
+//		for (int j = 0; j < size_n; j++) {
+//			for (int k = 0; k < sym_num; k++) {
+//				if (tab[j][i] == tab_symb[k]) histogram[k]++;
+//			}
+//		}
+//
+//	}
 }

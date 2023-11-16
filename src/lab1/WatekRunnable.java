@@ -1,4 +1,4 @@
-package zad1;
+package lab1;
 
 public class WatekRunnable implements Runnable {
     Obraz obraz;
@@ -9,8 +9,8 @@ public class WatekRunnable implements Runnable {
     }
     @Override
     public void run() {
-        synchronized (obraz) {
+
             obraz.calculate_histogram_with_id(id);
-        }
+
     }
 }

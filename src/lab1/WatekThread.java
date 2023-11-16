@@ -1,4 +1,4 @@
-package zad1;
+package lab1;
 
 public class WatekThread extends Thread{
     Obraz obraz;
