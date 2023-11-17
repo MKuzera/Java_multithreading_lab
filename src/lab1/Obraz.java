@@ -55,7 +55,11 @@ class Obraz {
 
     }
 
-    public void calculate_histogram() {
+	public int[] getHistogram() {
+		return histogram;
+	}
+
+	public void calculate_histogram() {
 
 		for (int i = 0; i < size_n; i++) {
 			for (int j = 0; j < size_m; j++) {
@@ -75,16 +79,24 @@ class Obraz {
 		}
 	}
 
-		public void calculate_histogram_with_id(int id){
+		public void calculate_histogram_with_id(int id,int watkow){
+			int blok = (int)Math.ceil(tab_symb.length/watkow);
+			int startznak = id*blok;
+			int endznak = (id+1)*blok;
+			if(endznak>tab_symb.length){endznak=tab_symb.length;}
 
-			for(int i=0;i<size_n;i++) {
-				for(int j=0;j<size_m;j++) {
 
-						if(tab[i][j] == tab_symb[id]) histogram[id]++;
-
-
+			for(int o = startznak;o < endznak; o++) {
+				for (int i = 0; i < size_n; i++) {
+					for (int j = 0; j < size_m; j++) {
+						if (tab[i][j] == tab_symb[o]) {
+							histogram[o]++;
+						}
+					}
 				}
+				System.out.println("watek id: " + id + " znak: " + tab_symb[o] + ": "+getRownasie(histogram[o]));
 			}
+
 
     }
 
@@ -101,7 +113,13 @@ class Obraz {
 //        for(int k=start_znak;k<end_znak;k+=skok_znak) {
 //           if(tab[i][j] == tab_symb[k]) histogram[k]++;
 //
-
+		static String getRownasie(int liczba){
+		String temp = "";
+		for (int i = 0; i <liczba; i++) {
+			temp += "=";
+		}
+		return temp;
+	}
 
     public void print_histogram(){
 	
@@ -111,9 +129,21 @@ class Obraz {
 	}
     }
 
+	public synchronized void histogramAddToGlobal(int[] local){
+		for(int i =0;i<histogram.length;i++){
+			histogram[i] +=local[i];
+		}
+	}
+
 	public void calculate_histogram_blokowo(int id, int threadsNum) {
 
-		int block = sym_num/threadsNum; // czy tu odrazu robi metode ceil()?
+		int[] localhistogram = new int[histogram.length];
+		for (int i = 0; i < localhistogram.length; i++) {
+			localhistogram[i] = 0;
+		}
+
+
+		int block = sym_num/threadsNum;
 		int startPoint = id*block;
 		int endPoint = (id+1)*block;
 		if(endPoint > sym_num) {endPoint=sym_num;}
@@ -121,9 +151,17 @@ class Obraz {
 		for (int i = 0; i < size_n; i++) {
 			for (int j = 0; j < size_m; j++) {
 				for(int k =startPoint; k<endPoint;k++)
-				if (tab[i][j] == tab_symb[k]) histogram[k]++;
+				if (tab[i][j] == tab_symb[k]) localhistogram[k]++;
 			}
 		}
+		// synchronized
+		histogramAddToGlobal(localhistogram);
+
+		for(int i = startPoint; i<endPoint;i++) {
+			System.out.println("watek id: " + id + " znak: " + tab_symb[i] + ": " + getRownasie(localhistogram[i]));
+		}
+
+
 	}
 
 
@@ -135,6 +173,7 @@ class Obraz {
 					if (tab[i][j] == tab_symb[k]) histogram[k]++;
 				}
 			}
+
 	}
 
 	public void calculate_histogram_for_col(int i) {

@@ -18,7 +18,9 @@ public class WatekRunnableCyklicznieWierszowo implements Runnable{
 
             // cyklicznie
             for(int i = start; i< rows; i+=threads_num){
+                synchronized (obraz){
                 obraz.calculate_histogram_for_row(i);
+                }
             }
 
 

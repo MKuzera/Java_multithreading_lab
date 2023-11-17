@@ -11,6 +11,8 @@ public class WatekRunnableBlokowo implements Runnable {
     }
     @Override
     public void run() {
-        obraz.calculate_histogram_blokowo(id,threads_num);
+
+            obraz.calculate_histogram_blokowo(id, threads_num);
+
     }
 }

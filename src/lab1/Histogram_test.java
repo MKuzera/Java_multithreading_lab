@@ -4,6 +4,7 @@ import java.util.Scanner;
 
 
 class Histogram_test {
+	private static int[] histogram;
 	private static Scanner scanner;
 
 	public static void main(String[] args) {
@@ -14,26 +15,34 @@ class Histogram_test {
 		int n = scanner.nextInt();
 		int m = scanner.nextInt();
 
-		System.out.println("Set number of threads (ilosc watkow = ilosc znakow)");
+		System.out.println("Set number of threads (ilosc watkow)");
 		int num_threads = scanner.nextInt();
-		int sym_num = num_threads;
+
+		System.out.println("Set number of ilosc znakow");
+		int sym_num = scanner.nextInt();
+
 
 		Obraz obraz_1 = new Obraz(n, m, sym_num);
+		int[] tempHistogram;
+		histogram = obliczIWyswietlhistogram(obraz_1);
 
-		obliczIWyswietlhistogram(obraz_1);
+		tempHistogram = WARIANT1_WatkiExtends1do1(num_threads, obraz_1);
+		System.out.println(compareHistograms( histogram, tempHistogram));
 
-		WARIANT1_WatkiExtends1do1(num_threads, obraz_1);
 
 		//	WatkiRunnable1do1(num_threads, obraz_1);
 
-		WARIANT2_WatkiRunnableBlokowo(num_threads, obraz_1);
 
-		WARIANT3_WatkiRunnableCyklicznyWierszowy(obraz_1, num_threads);
+		tempHistogram= WARIANT2_WatkiRunnableBlokowo(num_threads, obraz_1);
+		System.out.println(compareHistograms( histogram, tempHistogram));
 
-		WARIANT4_WatkiRunnableBlokowyKolumnowy(obraz_1, num_threads);
+		tempHistogram= WARIANT3_WatkiRunnableCyklicznyWierszowy(obraz_1, num_threads);
+		System.out.println(compareHistograms( histogram, tempHistogram));
 
+		tempHistogram= WARIANT4_WatkiRunnableBlokowyKolumnowy(obraz_1, num_threads);
+		System.out.println(compareHistograms( histogram, tempHistogram));
 	}
-	private static void WARIANT5_WatkiRunnable2D(Obraz obraz_1, int num_threads) {
+	private static int[] WARIANT5_WatkiRunnable2D(Obraz obraz_1, int num_threads) {
 		// wariant 5 (Runnable) 2D
 
 		System.out.println("*5* Calc histogram with 2D (runnable): " + num_threads);
@@ -56,10 +65,11 @@ class Histogram_test {
 			}
 		}
 		obraz_1.print_histogram();
+		return obraz_1.getHistogram();
 		// dokonczyc?
 	}
 
-	private static void WARIANT4_WatkiRunnableBlokowyKolumnowy(Obraz obraz_1, int num_threads) {
+	private static int[] WARIANT4_WatkiRunnableBlokowyKolumnowy(Obraz obraz_1, int num_threads) {
 		// wariant 4 (Runnable) podział blokowy kolu,nowy po tablicy,
 		// każdy z wątków zlicza wszystkie znaki w przydzielonym fragmencie tablicy (kolumnie) w sposob blokowy
 
@@ -83,9 +93,10 @@ class Histogram_test {
 			}
 		}
 		obraz_1.print_histogram();
+		return obraz_1.getHistogram();
 	}
 
-	private static void WARIANT3_WatkiRunnableCyklicznyWierszowy(Obraz obraz_1,int num_threads) {
+	private static int[] WARIANT3_WatkiRunnableCyklicznyWierszowy(Obraz obraz_1,int num_threads) {
 		// wariant 3 (Runnable) podział cykliczny wierszowy po tablicy,
 		// każdy z wątków zlicza wszystkie znaki w przydzielonym fragmencie tablicy
 
@@ -110,19 +121,22 @@ class Histogram_test {
 			}
 		}
 		obraz_1.print_histogram();
+		return obraz_1.getHistogram();
 	}
 
 
 
 
-	private static void obliczIWyswietlhistogram(Obraz obraz_1) {
+	private static int[] obliczIWyswietlhistogram(Obraz obraz_1) {
 		System.out.println("Calc histogram with no threads:");
 		obraz_1.clear_histogram();
 		obraz_1.calculate_histogram();
 		obraz_1.print_histogram();
+		return obraz_1.getHistogram();
+
 	}
 
-	private static void WARIANT1_WatkiExtends1do1(int num_threads, Obraz obraz_1) {
+	private static int[] WARIANT1_WatkiExtends1do1(int num_threads, Obraz obraz_1) {
 		// wariant 1 (Thread) jeden wątek zlicza jeden znak (dla mniejszej liczby wątków odpowiednio zmniejszamy liczbę znaków)
 
 		System.out.println("*1* Calc histogram with threads (1 watek 1 znak) (extends): " + num_threads);
@@ -130,7 +144,7 @@ class Histogram_test {
 		WatekThread[] NewThr = new WatekThread[num_threads];
 
 		for (int i = 0; i < num_threads; i++) {
-			NewThr[i] = new WatekThread(obraz_1, i);
+			NewThr[i] = new WatekThread(obraz_1, i,num_threads);
 			NewThr[i].start();
 		}
 		// oczekiwanie na zakonczenie procesow .join()
@@ -143,9 +157,11 @@ class Histogram_test {
 			}
 		}
 		obraz_1.print_histogram();
+		return obraz_1.getHistogram();
+
 	}
 
-	private static void WatkiRunnable1do1(int num_threads, Obraz obraz_1) {
+	private static int[] WatkiRunnable1do1(int num_threads, Obraz obraz_1) {
 		System.out.println("Calc histogram with threads (1 watek 1 znak) (runnable): " + num_threads);
 		obraz_1.clear_histogram();
 		Thread[] threads = new Thread[num_threads];
@@ -157,7 +173,7 @@ class Histogram_test {
 
 
 		for (int i = 0; i < num_threads; i++) {
-			NewThrRunnable[i] = new WatekRunnable(obraz_1, i);
+			NewThrRunnable[i] = new WatekRunnable(obraz_1, i,num_threads);
 			threads[i] = new Thread(NewThrRunnable[i]);
 			threads[i].start();
 		}
@@ -169,9 +185,10 @@ class Histogram_test {
 			}
 		}
 		obraz_1.print_histogram();
+		return obraz_1.getHistogram();
 	}
 
-	private static void WARIANT2_WatkiRunnableBlokowo(int num_threads, Obraz obraz_1) {
+	private static int[] WARIANT2_WatkiRunnableBlokowo(int num_threads, Obraz obraz_1) {
 		//  wariant 2 (Runnable) podział 1D blokowy po znakach
 
 		//System.out.println("ilosc znakow dla blokowo runnable");
@@ -200,9 +217,13 @@ class Histogram_test {
 			}
 		}
 		obraz_1.print_histogram();
+		return obraz_1.getHistogram();
 	}
 
 
+	private static Boolean compareHistograms(int[] his1, int[] his2){
+		return his1.equals(his2);
+	}
 }
 
 
