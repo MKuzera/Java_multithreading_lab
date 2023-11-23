@@ -11,7 +11,7 @@ public class WatekRunnable implements Runnable {
     }
     @Override
     public void run() {
-            obraz.calculate_histogram_with_id(id,num_threads);
+            obraz.calculate_histogram_with_id(id,num_threads,obraz.sym_num);
 
     }
 }

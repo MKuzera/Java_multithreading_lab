@@ -11,20 +11,22 @@ public class WatekRunnableCyklicznieWierszowo implements Runnable{
     }
     @Override
     public void run() {
-        //synchronized (obraz) { kod }
 
-            int rows = obraz.getSize_n();
+             int rows = obraz.getSize_n();
             int start = id;
 
             // cyklicznie
-            for(int i = start; i< rows; i+=threads_num){
-                synchronized (obraz){
+            for(int i = start; i< rows; i+=threads_num) {
                 obraz.calculate_histogram_for_row(i);
-                }
+
             }
 
-
     }
-    // synchronized sluzy do synchronizacji dostepu do obiektu obraz w metodzie run
-    // w ten sposob tylko 1 watek moze wykonywac metode calc na obiekcie obraz jednoczesnie
+    static String getRownasie(int liczba){
+        String temp = "";
+        for (int i = 0; i <liczba; i++) {
+            temp += "=";
+        }
+        return temp;
+    }
 }

@@ -30,43 +30,17 @@ class Histogram_test {
 		System.out.println(compareHistograms( histogram, tempHistogram));
 
 
-		//	WatkiRunnable1do1(num_threads, obraz_1);
 
 
 		tempHistogram= WARIANT2_WatkiRunnableBlokowo(num_threads, obraz_1);
 		System.out.println(compareHistograms( histogram, tempHistogram));
+
 
 		tempHistogram= WARIANT3_WatkiRunnableCyklicznyWierszowy(obraz_1, num_threads);
 		System.out.println(compareHistograms( histogram, tempHistogram));
 
 		tempHistogram= WARIANT4_WatkiRunnableBlokowyKolumnowy(obraz_1, num_threads);
 		System.out.println(compareHistograms( histogram, tempHistogram));
-	}
-	private static int[] WARIANT5_WatkiRunnable2D(Obraz obraz_1, int num_threads) {
-		// wariant 5 (Runnable) 2D
-
-		System.out.println("*5* Calc histogram with 2D (runnable): " + num_threads);
-		obraz_1.clear_histogram();
-		Thread[] threads = new Thread[num_threads];
-
-		Watek2dRunnable[] NewThrRunnable = new Watek2dRunnable[num_threads];
-
-
-		for (int i = 0; i < num_threads; i++) {
-			NewThrRunnable[i] = new Watek2dRunnable(obraz_1, i,num_threads);
-			threads[i] = new Thread(NewThrRunnable[i]);
-			threads[i].start();
-		}
-
-		for (int i = 0; i < num_threads; i++) {
-			try {
-				threads[i].join();
-			} catch (InterruptedException e) {
-			}
-		}
-		obraz_1.print_histogram();
-		return obraz_1.getHistogram();
-		// dokonczyc?
 	}
 
 	private static int[] WARIANT4_WatkiRunnableBlokowyKolumnowy(Obraz obraz_1, int num_threads) {
@@ -189,24 +163,17 @@ class Histogram_test {
 	}
 
 	private static int[] WARIANT2_WatkiRunnableBlokowo(int num_threads, Obraz obraz_1) {
-		//  wariant 2 (Runnable) podział 1D blokowy po znakach
 
-		//System.out.println("ilosc znakow dla blokowo runnable");
-		//int ilosc_znakow = scanner.nextInt();
 
 		System.out.println("*2* Calc histogram with threads (blokowo) (runnable): " + num_threads);
 		obraz_1.clear_histogram();
 		Thread[] threadsBlokowo = new Thread[num_threads];
-		// tworze tablice watkow bo majac interfejs runnable nie moge wywolac
-		// metody join bezposrednio na obiekcie (w przypadku extends tak moglem)
-		// ale w przypadku runable musze przypisac te obiekty do tablicy Threads
-		// i dopiero moge na nich wywolac runnable
-		WatekRunnableBlokowo[] NewThrRunnableBlokowo = new WatekRunnableBlokowo[num_threads];
+		WatekRunnableBlokowo[] NewRunnable= new WatekRunnableBlokowo[num_threads];
 
-
+		System.out.println("num_threads" + num_threads);
 		for (int i = 0; i < num_threads; i++) {
-			NewThrRunnableBlokowo[i] = new WatekRunnableBlokowo(obraz_1, num_threads, i);
-			threadsBlokowo[i] = new Thread(NewThrRunnableBlokowo[i]);
+			NewRunnable[i] = new WatekRunnableBlokowo(obraz_1,  i,num_threads);
+			threadsBlokowo[i] = new Thread(NewRunnable[i]);
 			threadsBlokowo[i].start();
 		}
 
@@ -227,15 +194,3 @@ class Histogram_test {
 }
 
 
-
-// roznice
-
-
-// Runnable: klasy moga dziedziczyc oraz implementowac wiele interfejsow
-// Thread:   klasy nie moga dziedziczyc i tez moga implementowac wiele interfejsow
-
-// run a start
-
-// run -> zawiera kod do wykonania w wątku. Wywolanie go oznacza wykonanie w biezacym watku
-// bez tworzenia nowego watku (nie bedzie dzialal rownolegle)
-// start -> rozpoczyna nowy watek i wykonuje kod z run w nowym watku

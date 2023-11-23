@@ -23,13 +23,24 @@ public class WatekRunnableBlokowyKolumnowy implements Runnable{
             }
 
             for (int i = start; i < end; i++) {
-               // System.out.println("Watek: " + id + " start " + start + " koniec " + end + " i " + i);
-                synchronized (obraz){
+
+
                 obraz.calculate_histogram_for_col(i);
-                }
+
+
+
             }
         }
 
+    }
+
+
+    static String getRownasie(int liczba){
+        String temp = "";
+        for (int i = 0; i <liczba; i++) {
+            temp += "=";
+        }
+        return temp;
     }
 }
 

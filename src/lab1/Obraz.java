@@ -1,16 +1,13 @@
 package lab1;
-
 import  java.util.Random;
-
-
 class Obraz {
     
     private int size_n;
     private int size_m;
     private char[][] tab;
-    private char[] tab_symb;
+    public char[] tab_symb;
     private int[] histogram;
-	private int sym_num;
+	public int sym_num;
 
 	public int getSize_n() {// rows
 		return size_n;
@@ -64,25 +61,27 @@ class Obraz {
 		for (int i = 0; i < size_n; i++) {
 			for (int j = 0; j < size_m; j++) {
 
-				// optymalna wersja obliczania histogramu, wykorzystująca fakt, że symbole w tablicy
-				// można przekształcić w indeksy tablicy histogramu
-				// histogram[(int)tab[i][j]-33]++;
-
-				// wersja bardziej ogólna dla tablicy symboli nie utożsamianych z indeksami
-				// tylko dla tej wersji sensowne jest zrównoleglenie w dziedzinie zbioru znaków ASCII
 
 				for (int k = 0; k < sym_num; k++) {
 					if (tab[i][j] == tab_symb[k]) histogram[k]++;
-					//if(tab[i][j] == (char)(k+33)) histogram[k]++;
+
 				}
 			}
 		}
 	}
 
-		public void calculate_histogram_with_id(int id,int watkow){
-			int blok = (int)Math.ceil(tab_symb.length/watkow);
+		public void calculate_histogram_with_id(int id,int watkow,int znakow){
+			int[] localhistogram = new int[histogram.length];
+			for (int i = 0; i < localhistogram.length; i++) {
+				localhistogram[i] = 0;
+			}
+
+
+			int blok = (int)Math.ceil( (double)znakow/ (double)watkow);
+
 			int startznak = id*blok;
 			int endznak = (id+1)*blok;
+
 			if(endznak>tab_symb.length){endznak=tab_symb.length;}
 
 
@@ -90,29 +89,16 @@ class Obraz {
 				for (int i = 0; i < size_n; i++) {
 					for (int j = 0; j < size_m; j++) {
 						if (tab[i][j] == tab_symb[o]) {
-							histogram[o]++;
+							localhistogram[o]++;
 						}
 					}
 				}
-				System.out.println("watek id: " + id + " znak: " + tab_symb[o] + ": "+getRownasie(histogram[o]));
 			}
-
-
+			histogramAddToGlobal(localhistogram);
+			for(int i = startznak; i<endznak;i++) {
+				System.out.println("watek id: " + id + " znak: " + tab_symb[i] + ": " + getRownasie(localhistogram[i]));
+			}
     }
-
-// uniwersalny wzorzec dla różnych wariantów zrównoleglenia - można go modyfikować dla
-// różnych wersji dekompozycji albo stosować tak jak jest zapisane poniżej zmieniając tylko
-// parametry wywołania w wątkach
-//
-//calculate_histogram_wzorzec(start_wiersz, end_wiersz, skok_wiersz,
-//                            start_kol, end_kol, skok_kol,
-//                            start_znak, end_znak, skok_znak){
-//
-//  for(int i=start_wiersz;i<end_wiersz;i+=skok_wiersz) {
-//     for(int j=start_kol;j<end_kol;j+=skok_kol) {
-//        for(int k=start_znak;k<end_znak;k+=skok_znak) {
-//           if(tab[i][j] == tab_symb[k]) histogram[k]++;
-//
 		static String getRownasie(int liczba){
 		String temp = "";
 		for (int i = 0; i <liczba; i++) {
@@ -124,8 +110,8 @@ class Obraz {
     public void print_histogram(){
 	
 	for(int i=0;i<sym_num;i++) {
-	    System.out.print(tab_symb[i]+" "+histogram[i]+"\n");	    
-	    //System.out.print((char)(i+33)+" "+histogram[i]+"\n");	    
+	    System.out.print(tab_symb[i]+" "+histogram[i]+"\n");
+
 	}
     }
 
@@ -143,7 +129,7 @@ class Obraz {
 		}
 
 
-		int block = sym_num/threadsNum;
+		int block = (int) Math.ceil((double)sym_num/(double)threadsNum);
 		int startPoint = id*block;
 		int endPoint = (id+1)*block;
 		if(endPoint > sym_num) {endPoint=sym_num;}
@@ -154,7 +140,6 @@ class Obraz {
 				if (tab[i][j] == tab_symb[k]) localhistogram[k]++;
 			}
 		}
-		// synchronized
 		histogramAddToGlobal(localhistogram);
 
 		for(int i = startPoint; i<endPoint;i++) {
@@ -166,34 +151,39 @@ class Obraz {
 
 
 	public void calculate_histogram_for_row(int i) {
+		int[] localhistogram = new int[histogram.length];
+		for (int k= 0; k < localhistogram.length; k++) {
+			localhistogram[k] = 0;
+		}
 
 			for (int j = 0; j < size_m; j++) {
 				for (int k = 0; k < sym_num; k++) {
-				//	System.out.println("J:" + j + "i"+i);
-					if (tab[i][j] == tab_symb[k]) histogram[k]++;
+					if (tab[i][j] == tab_symb[k]) localhistogram[k]++;
 				}
 			}
+
+
+
+
+		histogramAddToGlobal(localhistogram);
 
 	}
 
 	public void calculate_histogram_for_col(int i) {
+		int[] localhistogram = new int[histogram.length];
+		for (int k = 0; k < localhistogram.length; k++) {
+			localhistogram[k] = 0;
+		}
+
+
+
 		for (int j = 0; j < size_n; j++) {
 			for (int k = 0; k < sym_num; k++) {
-				if (tab[j][i] == tab_symb[k]) histogram[k]++;
+				if (tab[j][i] == tab_symb[k]) localhistogram[k]++;
 			}
 		}
+
+		histogramAddToGlobal(localhistogram);
 	}
 
-//	public void calculate_histogram_2d(int id, int threadsNum) {
-//		int block_rows = size_n/threadsNum;
-//		int startRow = id*block_rows;
-//		int endRow = (id+1)*block_rows;
-//
-//		for (int j = 0; j < size_n; j++) {
-//			for (int k = 0; k < sym_num; k++) {
-//				if (tab[j][i] == tab_symb[k]) histogram[k]++;
-//			}
-//		}
-//
-//	}
 }
